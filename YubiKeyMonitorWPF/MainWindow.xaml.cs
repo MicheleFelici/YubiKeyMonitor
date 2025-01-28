@@ -374,6 +374,7 @@ namespace YubiKeyMonitorWPF
                     Visibility = found ? Visibility.Visible : Visibility.Hidden;
                     if (found)
                     {
+                        Visibility = Visibility.Visible;
                         ShowWithBounceAnimation();
                         InitializePosition();
                         ForceTopMost();
@@ -382,6 +383,8 @@ namespace YubiKeyMonitorWPF
                     }
                     else
                     {
+                        Visibility = Visibility.Visible;
+                        InitializePosition();
                         HideWithUpAnimation();
                     }
                 });
