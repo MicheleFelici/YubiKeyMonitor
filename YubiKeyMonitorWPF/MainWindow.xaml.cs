@@ -374,10 +374,15 @@ namespace YubiKeyMonitorWPF
                     Visibility = found ? Visibility.Visible : Visibility.Hidden;
                     if (found)
                     {
+                        ShowWithBounceAnimation();
                         InitializePosition();
                         ForceTopMost();
                         Opacity = 0.8; // Resetta l'opacità quando riappare
                         IsHitTestVisible = true;
+                    }
+                    else
+                    {
+                        HideWithUpAnimation();
                     }
                 });
             }
@@ -386,6 +391,92 @@ namespace YubiKeyMonitorWPF
                 Dispatcher.Invoke(() => Visibility = Visibility.Hidden);
             }
         }
+
+        /// <summary>
+        /// Anima la finestra: scende dall'alto con un piccolo "rimbalzo"
+        /// e aumenta l'opacità da 0 a 0.8.
+        /// </summary>
+        private void ShowWithBounceAnimation()
+        {
+            // Prima di animare, impostiamo la visibilità (altrimenti l'animazione non è visibile).
+            Visibility = Visibility.Visible;
+            ForceTopMost(); // Se vuoi forzare di nuovo l'essere in primo piano.
+
+            // Calcoliamo la posizione finale (in basso a destra) come fa InitializePosition().
+            var primaryScreen = System.Windows.Forms.Screen.PrimaryScreen;
+            var workingArea = primaryScreen.WorkingArea;
+            double finalLeft = workingArea.Right - Width - 10;
+            double finalTop = workingArea.Bottom - Height - 10;
+
+            // Impostiamo la posizione iniziale "un po' più in alto" per poi scendere.
+            Left = finalLeft;
+            Top = finalTop - 80;    // 80 pixel sopra la posizione finale (valore a piacere).
+            Opacity = 0;           // Partiamo da trasparente.
+
+            // Anima la Top (con un effetto bounce) dalla posizione corrente a quella finale.
+            var topAnim = new DoubleAnimation(
+                /* fromValue: */ Top,
+                /* toValue:   */ finalTop,
+                /* duration:  */ TimeSpan.FromSeconds(0.5))
+            {
+                EasingFunction = new BounceEase
+                {
+                    Bounces = 1,
+                    Bounciness = 2,
+                    EasingMode = EasingMode.EaseOut
+                }
+            };
+            BeginAnimation(Window.TopProperty, topAnim);
+
+            // Anima l'opacità da 0 a 0.8.
+            var opacityAnim = new DoubleAnimation(
+                /* fromValue: */ 0,
+                /* toValue:   */ 0.8,
+                /* duration:  */ TimeSpan.FromSeconds(0.5))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+            };
+            BeginAnimation(Window.OpacityProperty, opacityAnim);
+
+            // Rendi cliccabile la finestra, se necessario.
+            IsHitTestVisible = true;
+        }
+
+        /// <summary>
+        /// Anima la finestra facendola salire e svanire (opacity -> 0),
+        /// dopodiché la nasconde (Visibility.Hidden).
+        /// </summary>
+        private void HideWithUpAnimation()
+        {
+            Visibility = Visibility.Visible;
+            ForceTopMost();
+            // Anima la Top, spostando la finestra più in alto di 80 pixel.
+            var topAnim = new DoubleAnimation(
+                /* toValue:   */ Top - 80,
+                /* duration:  */ TimeSpan.FromSeconds(0.4))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            // Anima l'opacità verso 0.
+            var opacityAnim = new DoubleAnimation(
+                /* toValue:   */ 0,
+                /* duration:  */ TimeSpan.FromSeconds(0.4))
+            {
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+
+            // Quando l'animazione di opacity finisce, nascondiamo la finestra.
+            opacityAnim.Completed += (s, e) =>
+            {
+                Visibility = Visibility.Hidden;
+            };
+
+            // Avvia le animazioni.
+            BeginAnimation(Window.TopProperty, topAnim);
+            BeginAnimation(Window.OpacityProperty, opacityAnim);
+        }
+
 
         private void SetupDeviceWatchers()
         {

@@ -61,22 +61,12 @@ namespace YubiKeyMonitorWPF.Properties {
         }
         
         /// <summary>
-        ///   Cerca una risorsa localizzata di tipo System.Byte[].
+        ///   Cerca una risorsa localizzata di tipo System.Drawing.Bitmap.
         /// </summary>
-        internal static byte[] fallback {
-            get {
-                object obj = ResourceManager.GetObject("fallback", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Cerca una risorsa localizzata di tipo System.Byte[].
-        /// </summary>
-        internal static byte[] yubikey {
+        internal static System.Drawing.Bitmap yubikey {
             get {
                 object obj = ResourceManager.GetObject("yubikey", resourceCulture);
-                return ((byte[])(obj));
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

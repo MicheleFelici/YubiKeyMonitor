@@ -40,7 +40,7 @@
             </Border>
         </Viewbox>
 
-    <tb:TaskbarIcon x:Name="TrayIcon"
+        <tb:TaskbarIcon x:Name="TrayIcon"
                     IconSource="./Resources/yubikeyIcon.ico"
                     ToolTipText="YubiKey Monitor">
         <tb:TaskbarIcon.ContextMenu>
